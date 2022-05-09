@@ -174,11 +174,20 @@ aws dynamodb get-item --consistent-read \
 ```
 
 * Query data:
+(| LE | LT | GE | GT | BEGINS_WITH | BETWEEN |)
 ```
 aws dynamodb query \
     --table-name LikedSongs \
     --key-condition-expression "Artist = :name" \
     --expression-attribute-values  '{":name":{"S":"RMHighlander"}}' \
+    --endpoint-url=http://localhost:4566
+
+
+aws dynamodb query \
+    --table-name LikedSongs \
+    --key-condition-expression "Artist = :a AND #date > :d" \
+    --expression-attribute-values '{":a":{"S":"RMHighlander"}, ":d":{"S":"2022-01-01"}}' \
+    --expression-attribute-names '{"#date": "ReleaseDate"}' \
     --endpoint-url=http://localhost:4566
 ```
 
