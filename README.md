@@ -88,44 +88,99 @@ go run main.go
 
 ### AWS CLI
 
-Create a table:
+* Create a table:
 ```
 aws dynamodb create-table \
     --table-name LikedSongs \
     --attribute-definitions \
         AttributeName=Artist,AttributeType=S \
-        AttributeName=Title,AttributeType=S \
+        AttributeName=ReleaseDate,AttributeType=S \
     --key-schema \
         AttributeName=Artist,KeyType=HASH \
-        AttributeName=Title,KeyType=RANGE \
+        AttributeName=ReleaseDate,KeyType=RANGE \
     --provisioned-throughput \
         ReadCapacityUnits=5,WriteCapacityUnits=5 \
     --endpoint-url=http://localhost:4566 \
     --region=eu-central-1
 ```
 
-List tables:
+* List tables:
 ```
-aws dynamodb list-tables --endpoint-url=http://localhost:4566 --region=eu-central-1 
+aws dynamodb list-tables \
+    --endpoint-url=http://localhost:4566 \
+    --region=eu-central-1 
 
-aws dynamodb describe-table --table-name LikedSongs | grep TableStatus
-```
-
-Drop table:
-```
-TODO
-```
-
-Create item:
-```
-TODO
+aws dynamodb describe-table \
+    --table-name LikedSongs | grep TableStatus \
+    --endpoint-url=http://localhost:4566
 ```
 
-Get item:
+* Drop table:
 ```
-TODO
+aws dynamodb delete-table \
+    --table-name LikedSongs \
+    --endpoint-url=http://localhost:4566 
 ```
 
+* Create data:
+```
+aws dynamodb put-item \
+    --table-name LikedSongs \
+    --item \
+    '{"Artist": {"S": "RMHighlander"}, "ReleaseDate": {"S": "2021-11-13"}, "Title": {"S": "Odyssey"}, "Genre": {"S": "Indie"}}' \
+    --endpoint-url=http://localhost:4566
+
+
+aws dynamodb put-item \
+    --table-name LikedSongs \
+    --item \
+    '{"Artist": {"S": "RMHighlander"}, "ReleaseDate": {"S": "2022-04-28"}, "Title": {"S": "Pure Shore"}, "Genre": {"S": "Travel"}}' \
+    --endpoint-url=http://localhost:4566
+
+
+aws dynamodb put-item \
+    --table-name LikedSongs \
+    --item \
+    '{"Artist": {"S": "RMHighlander"}, "ReleaseDate": {"S": "2021-10-30"}, "Title": {"S": "Steady Flight"}, "Genre": {"S": "Electric Blues"}}' \
+    --endpoint-url=http://localhost:4566
+```
+
+* Batch write:
+```
+aws dynamodb batch-write-item \
+    --request-items file://data-write.json \
+    --return-consumed-capacity INDEXES \
+    --return-item-collection-metrics SIZE \
+    --endpoint-url=http://localhost:4566
+```
+
+* Update data:
+```
+aws dynamodb update-item \
+    --table-name LikedSongs \
+    --key '{ "Artist": {"S": "RMHighlander"}, "ReleaseDate": {"S": "2021-11-13"}}' \
+    --update-expression "SET Genre = :newval" \
+    --expression-attribute-values '{":newval":{"S":"Soft Rock"}}' \
+    --return-values ALL_NEW \
+    --endpoint-url=http://localhost:4566
+```
+
+* Get data:
+```
+aws dynamodb get-item --consistent-read \ 
+    --table-name LikedSongs \
+    --key '{ "Artist": {"S": "RMHighlander"}, "ReleaseDate": {"S": "2021-11-13"}}' \
+    --endpoint-url=http://localhost:4566
+```
+
+* Query data:
+```
+aws dynamodb query \
+    --table-name LikedSongs \
+    --key-condition-expression "Artist = :name" \
+    --expression-attribute-values  '{":name":{"S":"RMHighlander"}}' \
+    --endpoint-url=http://localhost:4566
+```
 
 read parameters:
 ```
@@ -136,27 +191,53 @@ read parameters:
 --starting-token: last NextToken to retrieve the next set of items
 ```
 
-scan examples:
+* Scan data:
 ```
-aws dynamodb scan --table-name LikedSongs --endpoint-url=http://localhost:4566
+aws dynamodb scan \
+    --table-name LikedSongs \
+    --endpoint-url=http://localhost:4566
 
-aws dynamodb scan --table-name LikedSongs --projection-expression "artist, title" --endpoint-url=http://localhost:4566
+aws dynamodb scan \
+    --table-name LikedSongs \
+    --projection-expression "Artist, Title" \
+    --endpoint-url=http://localhost:4566
 
-aws dynamodb scan --table-name LikedSongs --filter-expression "artist = :a" --expression-attribute-values '{":a": {"S":"rmhighlander"}}' --endpoint-url=http://localhost:4566
+aws dynamodb scan \
+    --table-name LikedSongs \
+    --filter-expression "Artist = :a" \
+    --expression-attribute-values '{":a": {"S":"RMHighlander"}}' \
+    --endpoint-url=http://localhost:4566
 ```
 
 page size will do several calls (is used to avoid timeouts):
 ```
-aws dynamodb scan --table-name LikedSongs --page-size 1 
+aws dynamodb scan \
+    --table-name LikedSongs \
+    --page-size 1 \
+    --endpoint-url=http://localhost:4566
 ```
 
 max items (returns just the specified number of items):
 ```
-aws dynamodb scan --table-name LikedSongs --max-items 1
+aws dynamodb scan \
+    --table-name LikedSongs \
+    --max-items 1 \
+    --endpoint-url=http://localhost:4566
 
-aws dynamodb scan --table-name LikedSongs --max-items 1 --starting-token <token>
+aws dynamodb scan \
+    --table-name LikedSongs \
+    --max-items 1 \
+    --starting-token <NextToken> \
+    --endpoint-url=http://localhost:4566
 ```
 
+* Batch read:
+```
+aws dynamodb batch-get-item \
+    --request-items file://data-read.json \
+    --return-consumed-capacity TOTAL \
+    --endpoint-url=http://localhost:4566
+```
 
 ### TTL
 		TODO
@@ -166,6 +247,8 @@ aws dynamodb scan --table-name LikedSongs --max-items 1 --starting-token <token>
 https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStartedDynamoDB.html
 
 https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html
+
+https://docs.aws.amazon.com/cli/latest/reference/dynamodb/
 
 https://aws.github.io/aws-sdk-go-v2/docs/
 

@@ -84,7 +84,7 @@ func (app *DemoApp) createTable() {
                 AttributeType: types.ScalarAttributeTypeS,
             },
             {
-                AttributeName: aws.String("Title"),
+                AttributeName: aws.String("ReleaseDate"),
                 AttributeType: types.ScalarAttributeTypeS,
             },
         },
@@ -94,7 +94,7 @@ func (app *DemoApp) createTable() {
                 KeyType:       types.KeyTypeHash,
             },
             {
-                AttributeName: aws.String("Title"),
+                AttributeName: aws.String("ReleaseDate"),
                 KeyType:       types.KeyTypeRange,
             },
         },

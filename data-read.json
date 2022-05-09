@@ -1,0 +1,19 @@
+{
+  "LikedSongs": {
+    "Keys": [
+      {
+        "Artist": {"S":  "RMHighlander"},
+        "ReleaseDate": {"S":  "2021-11-13"}
+      },
+      {
+        "Artist": {"S":  "RMHighlander"},
+        "ReleaseDate": {"S":  "2022-04-28"}
+      },
+      {
+        "Artist": {"S":  "RMHighlander"},
+        "ReleaseDate": {"S":  "2021-10-30"}
+      }
+    ],
+    "ProjectionExpression": "Genre"
+  }
+}

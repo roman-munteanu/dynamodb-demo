@@ -1,0 +1,34 @@
+{
+  "LikedSongs": [
+    {
+      "PutRequest": {
+        "Item": {
+          "Artist": {"S":  "RMHighlander"},
+          "ReleaseDate": {"S":  "2021-11-13"},
+          "Title": {"S":  "Odyssey"},
+          "Genre": {"S":  "Indie"}
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "Artist": {"S":  "RMHighlander"},
+          "ReleaseDate": {"S":  "2022-04-28"},
+          "Title": {"S":  "Pure Shore"},
+          "Genre": {"S":  "Travel"}
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "Artist": {"S":  "RMHighlander"},
+          "ReleaseDate": {"S":  "2021-10-30"},
+          "Title": {"S":  "Steady Flight"},
+          "Genre": {"S":  "Electric Blues"}
+        }
+      }
+    }
+  ]
+}
