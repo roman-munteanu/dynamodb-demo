@@ -249,7 +249,48 @@ aws dynamodb batch-get-item \
 ```
 
 ### TTL
-		TODO
+
+Example - create Sessions table:
+```
+aws dynamodb create-table \
+    --table-name Sessions \
+    --attribute-definitions \
+        AttributeName=UserID,AttributeType=N \
+    --key-schema \
+        AttributeName=UserID,KeyType=HASH \
+    --provisioned-throughput \
+        ReadCapacityUnits=2,WriteCapacityUnits=2 \
+    --endpoint-url=http://localhost:4566 
+```
+
+Enable TTL:
+```
+aws dynamodb update-time-to-live \
+    --table-name Sessions \
+    --time-to-live-specification "Enabled=true, AttributeName=ExpTime" \
+    --endpoint-url=http://localhost:4566 
+```
+
+Describe TTL:
+```
+aws dynamodb describe-time-to-live \
+    --table-name Sessions \
+    --endpoint-url=http://localhost:4566 
+```
+
+Add item:
+```
+echo `date -d '+1 minutes' +%s` \
+
+aws dynamodb put-item \
+    --table-name Sessions \
+    --item '{"UserID": {"N": "1"}, "SessionID": {"N": "1234"}, "ExpTime": {"N": "1652510075"}}' \
+    --endpoint-url=http://localhost:4566
+
+aws dynamodb scan \
+    --table-name Sessions \
+    --endpoint-url=http://localhost:4566
+```
 
 ## Resources
 
@@ -262,3 +303,5 @@ https://docs.aws.amazon.com/cli/latest/reference/dynamodb/
 https://aws.github.io/aws-sdk-go-v2/docs/
 
 https://github.com/aws/aws-sdk-go-v2
+
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-how-to.html
