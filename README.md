@@ -22,10 +22,12 @@ go run main.go
 
 + NoSQL
 + Distributed: horizontal scalability
-+ Replication across multiple AZs
++ Replication across multiple availability zones
 + Handles massive workloads
 + Integrated with IAM
-+ Streams (supports events)
++ TTL
++ Supports transactions
++ Streams (event handling)
 
 
 ### Tables
@@ -39,7 +41,7 @@ go run main.go
 	- Set types: Number Set, String Set, Binary Set
 
 
-### Primary keys options:
+### Primary key options:
 
 1. Partition key (HASH) - decided on creation time, unique for each item and diverse
         hash function determines the partition in which the item will be stored
@@ -52,8 +54,23 @@ go run main.go
 
 
 ### GSI, LSI
-		TODO
 
+1. **GSI** - Global Secondary Index
+    + additional primary key
+    + added/updated after table creation
+    + throttling on the main table
+    Partition key: UserID
+    Range key: PostID
+    vs
+    Partition key: PostID
+    Range key: PostTS
+
+2. **LSI** - Local Secondary Index
+    + Enables query on a different attribute
+    Example: UserID, PostID, PostTS, Title
+
+### RCU/WCU
+TODO
 
 ### API:
 
@@ -290,6 +307,16 @@ aws dynamodb put-item \
 aws dynamodb scan \
     --table-name Sessions \
     --endpoint-url=http://localhost:4566
+```
+
+### Transactions
+```
+TODO
+```
+
+### Streams
+```
+TODO
 ```
 
 ## Resources
