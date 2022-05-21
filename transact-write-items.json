@@ -1,0 +1,24 @@
+[
+    {
+        "Update": {
+            "Key": {
+                "Artist": {"S": "RMHighlander"},
+                "ReleaseDate": {"S": "2021-11-13"}
+            },
+            "UpdateExpression": "SET Genre = :newval",
+            "ExpressionAttributeValues": {
+                ":newval": {"S": "Rock"}
+            },
+            "TableName": "LikedSongs"
+        }
+    },
+    {
+        "Delete": {
+            "Key": {
+                "Artist": {"S": "RMHighlander"},
+                "ReleaseDate": {"S": "2022-04-28"}
+            },
+            "TableName": "LikedSongs"
+        }
+    }
+]

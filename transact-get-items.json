@@ -1,0 +1,21 @@
+[
+    {
+        "Get": {
+            "Key": {
+                "Artist": {"S": "RMHighlander"},
+                "ReleaseDate": {"S": "2021-11-13"}
+            },
+            "TableName": "LikedSongs"
+        }
+    },
+    {
+        "Get": {
+            "Key": {
+                "Artist": {"S": "RMHighlander"},
+                "ReleaseDate": {"S": "2021-10-30"}
+            },
+            "TableName": "LikedSongs"
+        }
+    }
+]
+

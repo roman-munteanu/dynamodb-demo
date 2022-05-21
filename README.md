@@ -118,7 +118,8 @@ aws dynamodb create-table \
     --provisioned-throughput \
         ReadCapacityUnits=5,WriteCapacityUnits=5 \
     --endpoint-url=http://localhost:4566 \
-    --region=eu-central-1
+
+ #    --region=eu-central-1
 ```
 
 * List tables:
@@ -136,7 +137,8 @@ aws dynamodb describe-table \
 ```
 aws dynamodb delete-table \
     --table-name LikedSongs \
-    --endpoint-url=http://localhost:4566 
+    --endpoint-url=http://localhost:4566 \
+    --region=eu-central-1 
 ```
 
 * Create data:
@@ -310,8 +312,42 @@ aws dynamodb scan \
 ```
 
 ### Transactions
+* All or nothing operations (ACID)
+* Transactional consistency
+    Read mode: Read the data from all the tables and get a consistent view
+    Write mode: Writes accross many tables - if one fails then all fail
+* Consumes twice RCU/WCU (2 operations: prepare and commit)
+* API:
+    - TransactGetItems: multiple GetItems operations
+    - TransactWriteItems: mulitple UpdateItem, PutItem, DeleteItem
+
+WCU/RCU calculation:
+
+1. Number of writes per second: 2
+    Item size: 4KB
+    WCU: 2 * (4KB/1KB) * 2 (since 2 operations) = 16
+    (1 WCU = 1KB)
+
+2. Number of reads per second: 3
+    Item size: 5KB
+    RCU: 3 * (8KB/4KB) * 2 = 12
+    (5KB rounded, 1 RCU = 4KB)
+
+* transact-get-items:
 ```
-TODO
+aws dynamodb transact-get-items \
+    --transact-items file://transact-get-items.json \
+    --return-consumed-capacity TOTAL \
+    --endpoint-url=http://localhost:4566
+```
+
+* transact-write-items:
+```
+aws dynamodb transact-write-items \
+    --transact-items file://transact-write-items.json \
+    --return-consumed-capacity TOTAL \
+    --return-item-collection-metrics SIZE \
+    --endpoint-url=http://localhost:4566
 ```
 
 ### Streams
