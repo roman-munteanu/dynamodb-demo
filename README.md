@@ -26,7 +26,7 @@ go run main.go
 + Handles massive workloads
 + Integrated with IAM
 + TTL
-+ Supports transactions
++ Transactions
 + Streams (event handling)
 
 
@@ -69,8 +69,58 @@ go run main.go
     + Enables query on a different attribute
     Example: UserID, PostID, PostTS, Title
 
+
 ### RCU/WCU
-TODO
+
+to control table's capacity (read/write throughput):
+- **Read Capacity Units**: throughput for read operations
+- **Write Capacity Units**: throughput for write operations
+
+Burst Capacity: throughput can be exceeded temporarily (but if exhausted then you'll get `ProvisionedThroughputExceededException`)
+
+Read/Write capacity modes (allowed to switch between modes):
+
+* provisioned mode:
+    - requires the number of r/w per second which should be specified beforehand
+    - pay for provisioned r/w capacity units
+
+* on-demand mode:
+    - r/w automatically scalable with your workloads
+    - more expensive
+
+Read modes:
+- eventually consistent read (default, chance of stale data because of an unfinished replication)
+- strongly consistent read (correct data when read just after a write, to enable set `ConsistentRead` parameter to true in API calls)
+    
+
+* WCU calculation:
+
+    Number of writes per second: 5
+    Item size: 3.5KB
+    ```
+    WCU: 5 * (4KB/1KB) = 20
+    (1 WCU: 1 write/second with item size up to 1KB)
+    3.5KB rounded to upper
+    ```
+
+* RCU calculation:
+
+- SCR:
+    Number of strongly consistent reads per second: 5
+    Item size: 7KB
+    ```
+    RCU: 5 * (8KB/4KB) = 10
+    ```
+    1 Strongly consistent read/second for item size uo to 4KB
+
+- ECR:
+    Number of eventually consistent reads per second: 10
+    Item size: 4KB
+    ```
+    RCU: (10/2) * (4KB/4KB) = 5
+    ```
+    2 Eventually consistent reads/second for item size up to 4KB
+
 
 ### API:
 
@@ -267,6 +317,7 @@ aws dynamodb batch-get-item \
     --endpoint-url=http://localhost:4566
 ```
 
+
 ### TTL
 
 Example - create Sessions table:
@@ -311,7 +362,9 @@ aws dynamodb scan \
     --endpoint-url=http://localhost:4566
 ```
 
+
 ### Transactions
+
 * All or nothing operations (ACID)
 * Transactional consistency
     Read mode: Read the data from all the tables and get a consistent view
