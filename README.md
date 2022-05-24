@@ -325,13 +325,17 @@ WCU/RCU calculation:
 
 1. Number of writes per second: 2
     Item size: 4KB
+    ```
     WCU: 2 * (4KB/1KB) * 2 (since 2 operations) = 16
     (1 WCU = 1KB)
+    ```
 
 2. Number of reads per second: 3
     Item size: 5KB
+    ```
     RCU: 3 * (8KB/4KB) * 2 = 12
     (5KB rounded, 1 RCU = 4KB)
+    ```
 
 * transact-get-items:
 ```
@@ -350,10 +354,27 @@ aws dynamodb transact-write-items \
     --endpoint-url=http://localhost:4566
 ```
 
+
 ### Streams
-```
-TODO
-```
+
+* All item-level changes in a table (create/update/delete) appear in an ordered stream
+* Stream records can be:
+    - read by AWS lambda
+    - read by Kinesis Client Library apps
+    - sent to Kinesis Data Streams
+* Constraints for consumer applications:
+    - Data retention in streams is 24 hours
+    - max 2 processes reading from the same shard at the same time
+* Use cases:
+    - Messaging and notifications (react to real-time changes)
+    - Reporting, analytics
+    - Search (ElasticSearch)
+    - Near real-time synchronization of data (cross region replication)
+* Stream record view:
+    KEYS_ONLY, NEW_IMAGE, OLD_IMAGE, NEW_AND_OLD_IMAGES
+
+https://aws.amazon.com/blogs/database/dynamodb-streams-use-cases-and-design-patterns/
+
 
 ## Resources
 
@@ -368,3 +389,7 @@ https://aws.github.io/aws-sdk-go-v2/docs/
 https://github.com/aws/aws-sdk-go-v2
 
 https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-how-to.html
+
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html
+
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.Lambda.Tutorial.html
