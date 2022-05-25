@@ -33,7 +33,7 @@ go run main.go
 ### Tables
 
 * Tables (table is a collection of data)
-* Items (rows, item is a group of attributes) (maximum size: 400KB, no limit to the number of items you can store in a table)
+* Items (rows, item is a group of attributes, maximum size: 400KB, no limit to the number of items you can store in a table)
 * Attributes (columns, most of them are scalar but could be nested)
 * Data types:
 	- Scalar types: String, Number, Boolean, Null
@@ -43,31 +43,51 @@ go run main.go
 
 ### Primary key options:
 
-1. Partition key (HASH) - decided on creation time, unique for each item and diverse
-        hash function determines the partition in which the item will be stored
-		Example: ArtistID or: SongID 
+1. Partition key (HASH) 
+    - decided on creation time, unique for each item and diverse
+    - hash function determines the partition in which the item will be stored
+    ```
+    Example: ArtistID or: SongID 
+    ```
 
-2. Partition key + Sort key (HASH + RANGE) - composite primary key, must be unique
-        All items with the same partition key value are stored together, in sorted order by sort key value.
-		Example: SongID (HASH), ReleaseTS (RANGE)
-		or: UserID (HASH), PostID (RANGE)
+2. Partition key + Range key (Sort key) (HASH + RANGE) 
+    - composite primary key, must be unique
+    - all items with the same partition key value are stored together, in sorted order by sort key value.
+    ```
+    Example: ArtistID (HASH), ReleaseTS (RANGE)
+    or: UserID (HASH), PostID (RANGE)
+    ```
 
 
 ### GSI, LSI
 
 1. **GSI** - Global Secondary Index
-    + additional primary key
-    + added/updated after table creation
-    + throttling on the main table
+    - additional primary key (hash / hash+range)
+    - consists of scalar attributes
+    - added/updated after table creation
+    - must provide WCU/RCU for the index
+    - throttling on the main table may occur if writes are throttled on the GSI
+    ```
+    Example:
+    1.
     Partition key: UserID
-    Range key: PostID
-    vs
-    Partition key: PostID
-    Range key: PostTS
+    Range key: GroupID
+    Attr: CreatedDate
+    2.
+    Partition key: GroupID
+    Range key: CreatedDate
+    Attr: UserID
+    ```
 
 2. **LSI** - Local Secondary Index
-    + Enables query on a different attribute
+    - enables query on a different attribute, alternative sort key (partition key stays the same)
+    - consists of one scalar attribute (number/string/binary)
+    - up to 5 indexes per table
+    - must be specified at table creation time
+    - uses RCU/WCU of the main table
+    ```
     Example: UserID, PostID, PostTS, Title
+    ```
 
 
 ### RCU/WCU
