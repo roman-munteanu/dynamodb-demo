@@ -211,7 +211,7 @@ aws dynamodb delete-table \
     --region=eu-central-1 
 ```
 
-* Create data:
+* Create item:
 ```
 aws dynamodb put-item \
     --table-name LikedSongs \
@@ -243,7 +243,7 @@ aws dynamodb batch-write-item \
     --endpoint-url=http://localhost:4566
 ```
 
-* Update data:
+* Update item:
 ```
 aws dynamodb update-item \
     --table-name LikedSongs \
@@ -254,7 +254,16 @@ aws dynamodb update-item \
     --endpoint-url=http://localhost:4566
 ```
 
-* Get data:
+* Delete item:
+```
+aws dynamodb delete-item \
+    --table-name LikedSongs \
+    --key '{ "Artist": {"S": "RMHighlander"}, "ReleaseDate": {"S": "2022-04-28"}}' \
+    --return-values ALL_OLD \
+    --endpoint-url=http://localhost:4566
+```
+
+* Get item:
 ```
 aws dynamodb get-item --consistent-read \ 
     --table-name LikedSongs \
@@ -306,6 +315,8 @@ aws dynamodb scan \
     --expression-attribute-values '{":a": {"S":"RMHighlander"}}' \
     --endpoint-url=http://localhost:4566
 ```
+filters are applied to the result after the complete scan.
+
 
 page size will do several calls (is used to avoid timeouts):
 ```
@@ -336,6 +347,38 @@ aws dynamodb batch-get-item \
     --return-consumed-capacity TOTAL \
     --endpoint-url=http://localhost:4566
 ```
+
+* Count data:
+```
+aws dynamodb query \
+    --table-name LikedSongs \
+    --key-condition-expression "Artist = :name" \
+    --expression-attribute-values  '{":name":{"S":"RMHighlander"}}' \
+    --select COUNT \
+    --endpoint-url=http://localhost:4566
+```
+
+### Nested attributes
+
+add item with nested attributes:
+```
+aws dynamodb put-item \
+    --table-name LikedSongs \
+    --item \
+    '{"Artist": {"S": "RMHighlander"}, "ReleaseDate": {"S": "2021-12-03"}, "Title": {"S": "Triad EP"}, "Songs": {"L": [{"M": {"Title": {"S": "Sparkling Stars"}}}, {"M": {"Title": {"S": "Steady Flight"}}}] }}' \
+    --endpoint-url=http://localhost:4566
+```
+
+filter by a nested field:
+```
+aws dynamodb query \
+    --table-name LikedSongs \
+    --key-condition-expression "Artist = :a AND ReleaseDate = :d" \
+    --filter-expression "Songs[0].Title = :t" \
+    --expression-attribute-values '{":a":{"S":"RMHighlander"}, ":d":{"S":"2021-12-03"}, ":t":{"S":"Sparkling Stars"}}' \
+    --endpoint-url=http://localhost:4566
+```
+(Index cannot be created on nested attributes, KeyConditionExpressions cannot have conditions on nested attributes)
 
 
 ### TTL
@@ -460,6 +503,8 @@ https://docs.aws.amazon.com/cli/latest/reference/dynamodb/
 https://aws.github.io/aws-sdk-go-v2/docs/
 
 https://github.com/aws/aws-sdk-go-v2
+
+https://docs.aws.amazon.com/sdk-for-go/api/service/dynamodb/dynamodbattribute/
 
 https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-how-to.html
 
